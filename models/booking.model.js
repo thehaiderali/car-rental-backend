@@ -32,7 +32,6 @@ const bookingSchema=new mongoose.Schema({
 
 bookingSchema.pre("save", function (next) {
   this.totalCost = this.rentPerDay * this.days;
-  next();
 });
 
 export const Booking=mongoose.model("Booking",bookingSchema

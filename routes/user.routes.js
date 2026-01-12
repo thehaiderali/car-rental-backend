@@ -40,7 +40,7 @@ router.post("/signup",async (req,res)=>{
        success:true,
        data:{
         message:"User created Successfully",
-        userId:newUser._id
+        userId:newUser._id.toString()
        }
     })
         

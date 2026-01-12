@@ -21,10 +21,10 @@ router.post("/bookings",checkAuth,async (req,res)  => {
             days:data.days,
             rentPerDay:data.rentPerDay,
             userId:req.user.userId,
+            totalCost: data.days * data.rentPerDay,
+
         })
-        // MISTAKE #1: Wrong HTTP status code
-        // Creating a resource should return 201 (Created), not 200 (OK)
-        // 201 indicates successful resource creation
+       
         return res.status(201).json({
             success:true,
             data:{
@@ -46,11 +46,6 @@ router.post("/bookings",checkAuth,async (req,res)  => {
 } )
 
 
-// MISTAKE #2: DUPLICATE ROUTE DEFINITION
-// You have TWO router.get("/bookings") handlers (line 47 and line 109)
-// Express only registers the FIRST matching route
-// The second one (summary endpoint) is COMPLETELY IGNORED and unreachable
-// SOLUTION: Combine all GET /bookings logic into ONE handler with conditional logic
 
 router.get("/bookings",checkAuth,async(req,res)=>{
     try {
