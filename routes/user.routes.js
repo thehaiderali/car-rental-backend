@@ -78,7 +78,7 @@ router.post("/login",async(req,res)=>{
         })
     }
 
-    const isMatch=bcrypt.compare(data.password,already.password)
+    const isMatch=await bcrypt.compare(data.password,already.password)
 
     if(!isMatch){
         return res.status(401).json({

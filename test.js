@@ -7,6 +7,9 @@ let token = '';
 let bookingId = '';
 let userId = '';
 
+// Utility sleep function
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function test() {
   try {
     console.log('=== SIGNUP ===');
@@ -16,6 +19,7 @@ async function test() {
     });
     console.log(signupRes.data);
     userId = signupRes.data.data.userId;
+    await sleep(500); // wait half a second
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -28,6 +32,7 @@ async function test() {
     });
     console.log(loginRes.data);
     token = loginRes.data.data.token;
+    await sleep(500);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -47,6 +52,7 @@ async function test() {
     );
     console.log(bookingRes.data);
     bookingId = bookingRes.data.data.bookingId;
+    await sleep(700);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -57,6 +63,7 @@ async function test() {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log(allBookings.data);
+    await sleep(500);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -64,10 +71,11 @@ async function test() {
   try {
     console.log('=== GET BOOKING BY ID ===');
     const singleBooking = await axios.get(
-      `${BASE_URL}/bookings?bookingId=${bookingId}`,
+      `${BASE_URL}/bookings/${bookingId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     console.log(singleBooking.data);
+    await sleep(500);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -78,6 +86,7 @@ async function test() {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log(summary.data);
+    await sleep(500);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -86,10 +95,11 @@ async function test() {
     console.log('=== UPDATE BOOKING ===');
     const updateBooking = await axios.put(
       `${BASE_URL}/bookings/${bookingId}`,
-      { carName: 'Hyundai Verna', days: 4 },
+      { carName: 'Hyundai Verna', days: 4, rentPerDay: 1600 },
       { headers: { Authorization: `Bearer ${token}` } }
     );
     console.log(updateBooking.data);
+    await sleep(700);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -102,6 +112,7 @@ async function test() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     console.log(updateStatus.data);
+    await sleep(500);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }
@@ -113,6 +124,7 @@ async function test() {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     console.log(deleteBooking.data);
+    await sleep(500);
   } catch (err) {
     if (err.response) console.log(err.response.data);
   }

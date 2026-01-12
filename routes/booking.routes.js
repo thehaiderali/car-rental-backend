@@ -61,7 +61,7 @@ router.get("/bookings",checkAuth,async(req,res)=>{
         })
 
     } catch (error) {
-        console.log("Error in Fetching Books  : ",error);
+        console.log("Error in Fetching Bookings  : ",error);
         return res.status(500).json({
             success:false,
             error:"Internal Server Error"
@@ -81,7 +81,7 @@ router.get("/bookings/:bookingId",checkAuth,async(req,res)=>{
             error:"No Booking Found for Given Id"
         })
     }
-    else if (booking.userId!=req.user.userId){
+    else if (booking.userId.toString()!=req.user.userId){
          return res.status(400).json({
             success:false,
             error:"No Booking Found for Given Id"
@@ -89,7 +89,7 @@ router.get("/bookings/:bookingId",checkAuth,async(req,res)=>{
     }
     else {
         return res.status(200).json({
-            success:false,
+            success:true,
             data:booking
         })
     }
@@ -117,7 +117,7 @@ router.get("/bookings",checkAuth,async(req,res)=>{
                 error:"Invalid Query Params "
             })
         }
-        const bookings = await Booking.find({ userId: userId });
+        const bookings = await Booking.find({ userId: req.user.userId });
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ 
                 success:false,
@@ -135,7 +135,7 @@ router.get("/bookings",checkAuth,async(req,res)=>{
         }
         const upcomingBookings=bookings.filter((b)=>b.status=="booked")
         return res.status(200).json({
-            success:false,
+            success:true,
             data:{
                 userId:req.user.userId,
                 totalBookings,
@@ -164,7 +164,7 @@ router.put("/bookings/:bookingId",checkAuth,async(req,res)=>{
                 error:"Booking Not Found for Given Id"
             })
         }
-        if(booking.userId!==req.user.userId){
+        if(booking.userId.toString()!==req.user.userId){
             return res.status(401).json({
                 success:false,
                 error:"Not Authorized to update Booking with Given Id"
@@ -183,7 +183,7 @@ router.put("/bookings/:bookingId",checkAuth,async(req,res)=>{
                 error:"Invalid Request Schema"
             })
         }
-        const newbooking=await Booking.findByIdAndUpdate(bookingId,{...data})
+        const newbooking=await Booking.findByIdAndUpdate(bookingId,{...data},{new:true})
         return res.status(200).json({
             success:true,
             message:"Booking updated successfully",
@@ -208,14 +208,14 @@ router.delete("/bookings/:bookingId",checkAuth,async(req,res)=>{
             message:"Booking for Given Id not Found"
         })
     }
-    if(!booking.status=="cancelled"){
+    if(booking.status=="cancelled"){
         return res.status(400).json({
             success:false,
             message:"Cannot Delete Already Cancelled Booking"
         })
     }
     
-    if(booking.userId!=req.user.userId){
+    if(booking.userId.toString()!=req.user.userId){
         return res.status(403).json({
             success:false,
             message:"Not Authorized to Update Status of Given Booking Id"
@@ -223,7 +223,7 @@ router.delete("/bookings/:bookingId",checkAuth,async(req,res)=>{
     }
     const newbooking=await Booking.findByIdAndUpdate(req.params.bookingId,{status:"cancelled"});
     return res.status(200).json({
-        success:false,
+        success:true,
         data:{
             message:`Booking with ID : ${booking._id} cancelled successfully`
         }
