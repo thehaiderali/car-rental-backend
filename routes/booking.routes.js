@@ -51,8 +51,6 @@ router.get("/bookings",checkAuth,async(req,res)=>{
     try {
         const {userId}=req.user;
         const {summary, bookingId} = req.query;
-
-        // Handle SUMMARY request first (query: ?summary=true)
         if(summary === 'true') {
             const bookings = await Booking.find({ userId: userId });
             if (!bookings || bookings.length === 0) {
@@ -66,12 +64,8 @@ router.get("/bookings",checkAuth,async(req,res)=>{
             let totalAmountSpent=0;
 
             for (const booking of bookings){
-                // MISTAKE #3: Use strict equality (===) instead of ==
-                // == does type coercion which can cause unexpected bugs
                 if(booking.status === "booked" || booking.status === "completed"){
                     totalBookings+=1;
-                    // MISTAKE #4: Only count totalAmountSpent for booked/completed
-                    // Your original code counted ALL bookings including cancelled
                     totalAmountSpent+=booking.totalCost;
                 }
             }
@@ -87,7 +81,6 @@ router.get("/bookings",checkAuth,async(req,res)=>{
             });
         }
 
-        // Handle SINGLE BOOKING by query param (query: ?bookingId=xxx)
         if(bookingId) {
             const booking = await Booking.findById(bookingId);
             if(!booking){
@@ -97,8 +90,7 @@ router.get("/bookings",checkAuth,async(req,res)=>{
                 });
             }
             if (booking.userId.toString() !== req.user.userId){
-                // MISTAKE #5: Should be 403 (Forbidden) not 400 (Bad Request)
-                // 403 means authenticated but not authorized to access this resource
+                
                 return res.status(403).json({
                     success:false,
                     error:"No Booking Found for Given Id"
@@ -110,7 +102,6 @@ router.get("/bookings",checkAuth,async(req,res)=>{
             });
         }
 
-        // Handle ALL BOOKINGS (default behavior, no query params)
         const bookings = await Booking.find({ userId: userId });
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({ 
@@ -240,13 +231,13 @@ router.delete("/bookings/:bookingId",checkAuth,async(req,res)=>{
     try {
         const booking=await Booking.findById(req.params.bookingId);
         if(!booking){
-            // MISTAKE #14: Should be 404, not 400
+            
             return res.status(404).json({
                 success:false,
                 message:"Booking for Given Id not Found"
             })
         }
-        // MISTAKE #15: Use strict equality
+       
         if(booking.status === "cancelled"){
             return res.status(400).json({
                 success:false,
