@@ -141,18 +141,16 @@ router.get("/bookings",checkAuth,async(req,res)=>{
 router.get("/bookings/:bookingId",checkAuth,async(req,res)=>{
    try {
     
-    const bookingId=req.params.bookingId;
+    const bookingId=req.params.bookingId
     const booking=await Booking.findById(bookingId);
     if(!booking){
-        // MISTAKE #6: Should be 404 (Not Found), not 400 (Bad Request)
+        
         return res.status(404).json({
             success:false,
             error:"No Booking Found for Given Id"
         })
     }
-    // MISTAKE #7: Use strict inequality (!==) instead of (!=)
     else if (booking.userId.toString() !== req.user.userId){
-        // MISTAKE #8: Should be 403 (Forbidden), not 400
          return res.status(403).json({
             success:false,
             error:"No Booking Found for Given Id"
@@ -178,53 +176,22 @@ router.get("/bookings/:bookingId",checkAuth,async(req,res)=>{
 
 })
 
-
-// MISTAKE #9: REMOVED THIS DUPLICATE ROUTE
-// This was the second router.get("/bookings") that was unreachable
-// All its logic has been moved into the first GET /bookings handler above
-/*
-router.get("/bookings",checkAuth,async(req,res)=>{
-    try {
-        const summary=req.query.summary;
-        if(!summary){
-            return res.status(400).json({
-                success:false,
-                error:"Invalid Query Params "
-            })
-        }
-        // ... rest of summary logic
-    }
-})
-*/
-
 router.put("/bookings/:bookingId",checkAuth,async(req,res)=>{
     try {
         const bookingId=req.params.bookingId;
         const booking=await Booking.findById(bookingId);
         if(!booking){
-            // MISTAKE #10: Should be 404 (Not Found), not 400
             return res.status(404).json({
                 success:false,
                 error:"Booking Not Found for Given Id"
             })
         }
         if(booking.userId.toString() !== req.user.userId){
-            // MISTAKE #11: Should be 403 (Forbidden), not 401 (Unauthorized)
-            // 401 = not authenticated (no valid token)
-            // 403 = authenticated but not authorized (token valid, but wrong user)
             return res.status(403).json({
                 success:false,
                 error:"Not Authorized to update Booking with Given Id"
             })
         }
-
-        // MISTAKE #12: Too strict validation - blocks ALL updates on completed/cancelled
-        // According to spec:
-        // - CAN update status from completed → cancelled
-        // - CAN update status from booked → completed/cancelled
-        // - CANNOT update carName/days/rentPerDay on completed/cancelled
-        // - CANNOT update status from completed/cancelled → booked
-        
         const {success,data}=bookingUpdate.safeParse(req.body);
         if(!success){
             return res.status(400).json({
@@ -233,7 +200,6 @@ router.put("/bookings/:bookingId",checkAuth,async(req,res)=>{
             })
         }
 
-        // Check if trying to update car details on completed/cancelled booking
         if ((booking.status === "completed" || booking.status === "cancelled") && 
             (data.carName || data.days || data.rentPerDay)) {
             return res.status(400).json({
@@ -242,7 +208,6 @@ router.put("/bookings/:bookingId",checkAuth,async(req,res)=>{
             });
         }
 
-        // Check invalid status transitions
         if (data.status) {
             if ((booking.status === "completed" || booking.status === "cancelled") && 
                 data.status === "booked") {
@@ -253,8 +218,6 @@ router.put("/bookings/:bookingId",checkAuth,async(req,res)=>{
             }
         }
 
-        // MISTAKE #13: Missing totalCost recalculation
-        // When days or rentPerDay changes, totalCost must be recalculated
         if (data.days || data.rentPerDay) {
             const updatedDays = data.days || booking.days;
             const updatedRent = data.rentPerDay || booking.rentPerDay;
@@ -296,7 +259,6 @@ router.delete("/bookings/:bookingId",checkAuth,async(req,res)=>{
             })
         }
         
-        // MISTAKE #16: Use strict inequality
         if(booking.userId.toString() !== req.user.userId){
             return res.status(403).json({
                 success:false,
@@ -311,8 +273,6 @@ router.delete("/bookings/:bookingId",checkAuth,async(req,res)=>{
             }
         })
     } catch (error) {
-        // MISTAKE #17: Missing try-catch block in original code
-        // Added error handling for consistency
         console.log("Error in Deleting Booking  : ",error);
         return res.status(500).json({
             success:false,

@@ -36,8 +36,6 @@ router.post("/signup",async (req,res)=>{
         password:hashedPassword
     })
 
-    // MISTAKE #20: Wrong HTTP status code
-    // Creating a user should return 201 (Created), not 200 (OK)
     return res.status(201).json({
        success:true,
        data:{
@@ -54,9 +52,6 @@ router.post("/signup",async (req,res)=>{
         })
     }
 })
-
-
-
 
 
 router.post("/login",async(req,res)=>{
@@ -89,10 +84,6 @@ router.post("/login",async(req,res)=>{
         })
     }
 
-    // MISTAKE #21: Missing JWT expiration
-    // Tokens should expire for security reasons
-    // Without expiration, if a token is stolen, it's valid forever
-    // Best practice: Add expiration (e.g., 24 hours, 7 days, etc.)
     const token = jwt.sign({
         userId:already._id,
         username:already.username,
